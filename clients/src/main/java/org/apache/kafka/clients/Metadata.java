@@ -151,6 +151,7 @@ public final class Metadata {
         long begin = System.currentTimeMillis();
         long remainingWaitMs = maxWaitMs;
         //note 循环，直到版本号满足条件
+        //q tmd 这个循环有意义嘛???
         while (this.version <= lastVersion) {
             if (remainingWaitMs != 0)
                 wait(remainingWaitMs);

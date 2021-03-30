@@ -529,11 +529,12 @@ public class KafkaProducer<K, V> implements Producer<K, V> {
         Integer partitionsCount = cluster.partitionCountForTopic(topic);
         // Return cached metadata if we have it, and if the record's partition is either undefined
         // or within the known partition range
+        //note 有效条件
         if (partitionsCount != null && (partition == null || partition < partitionsCount))
             return new ClusterAndWaitTime(cluster, 0);
 
         long begin = time.milliseconds();
-        //note 最长等待时间
+        //note 最长阻塞时间
         long remainingWaitMs = maxWaitMs;
         long elapsed;
 
@@ -543,6 +544,7 @@ public class KafkaProducer<K, V> implements Producer<K, V> {
         // than expected, issue an update request only once. This is necessary in case the metadata
         // is stale and the number of partitions for this topic has increased in the meantime.
         //note 拉取元数据，条件：成功拉取 / 超时
+        //note 依上而得，需要重新更新metadata的条件：1. topic未初始化完毕 2. 期望的分区号>允许的（这种情况只申请更新一次）
         do {
             log.trace("Requesting metadata update for topic {}.", topic);
             int version = metadata.requestUpdate();
@@ -550,6 +552,8 @@ public class KafkaProducer<K, V> implements Producer<K, V> {
             //q 具体作用？
             sender.wakeup();
             try {
+                //note 版本号控制元数据一致性
+                //q 这里一定就能保证待会元数据就不失效嘛？
                 metadata.awaitUpdate(version, remainingWaitMs);
             } catch (TimeoutException ex) {
                 // Rethrow with original maxWaitMs to prevent logging exception with remainingWaitMs
