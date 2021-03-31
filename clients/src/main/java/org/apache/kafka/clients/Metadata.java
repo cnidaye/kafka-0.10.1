@@ -142,6 +142,7 @@ public final class Metadata {
 
     /**
      * Wait for metadata update until the current version is larger than the last version we know of
+     * notified by {@link #update(Cluster, long)} ()}
      */
     public synchronized void awaitUpdate(final int lastVersion, final long maxWaitMs) throws InterruptedException {
         if (maxWaitMs < 0) {
@@ -151,9 +152,9 @@ public final class Metadata {
         long begin = System.currentTimeMillis();
         long remainingWaitMs = maxWaitMs;
         //note 循环，直到版本号满足条件
-        //q tmd 这个循环有意义嘛???
         while (this.version <= lastVersion) {
             if (remainingWaitMs != 0)
+                //note 当update版本号时，会notify这个对象上的线程,
                 wait(remainingWaitMs);
             long elapsed = System.currentTimeMillis() - begin;
             if (elapsed >= maxWaitMs)
