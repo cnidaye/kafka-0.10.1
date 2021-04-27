@@ -22,6 +22,10 @@ import org.apache.kafka.common.requests.RequestHeader;
 /**
  * The interface for {@link NetworkClient}
  */
+//note Kafka 网络的基础接口，主要表明的功能抽象：
+// 1）反映连接的状态
+// 2）作为Client的基本通讯功能：发送线程的掌控
+// 3）kafka网络通信的可用性保证：控制 in-flight messages
 public interface KafkaClient extends Closeable {
 
     /**

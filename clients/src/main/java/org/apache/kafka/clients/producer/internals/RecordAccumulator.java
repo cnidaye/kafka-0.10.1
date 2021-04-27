@@ -166,6 +166,7 @@ public final class RecordAccumulator {
         appendsInProgress.incrementAndGet();
         try {
             // check if we have an in-progress batch
+            //note 1.获取相应主题分区的消息队列
             Deque<RecordBatch> dq = getOrCreateDeque(tp);
             synchronized (dq) {
                 if (closed)

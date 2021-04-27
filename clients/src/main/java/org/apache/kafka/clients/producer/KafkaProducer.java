@@ -480,10 +480,11 @@ public class KafkaProducer<K, V> implements Producer<K, V> {
             //note 核心：向缓冲区添加record
             //q 为甚么要添加 remainingWaitMs？
             RecordAccumulator.RecordAppendResult result = accumulator.append(tp, timestamp, serializedKey, serializedValue, interceptCallback, remainingWaitMs);
-            //note 核心：看是否要发送； batch满了 或
+            //note 核心：看是否要发送； batch满了 或 新batch创建了
             //q newBatchCreated? 添加流程研究下!
             if (result.batchIsFull || result.newBatchCreated) {
                 log.trace("Waking up the sender since topic {} partition {} is either full or getting a new batch", record.topic(), partition);
+                //note
                 this.sender.wakeup();
             }
             return result.future;
